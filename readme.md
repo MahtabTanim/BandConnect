@@ -15,8 +15,6 @@ This diagram shows the interaction between the user, Django main site, Flask mic
 
 ---
 
----
-
 ## 🚀 Features
 
 ### 🧑‍🎤 Anonymous Users
@@ -136,9 +134,9 @@ This diagram shows the interaction between the user, Django main site, Flask mic
 
 ```
 bandconnect/
-├── pictures-service/          # Flask microservice for event images
-├── songs-service/             # Flask + MongoDB microservice for song lyrics
-├── main-app/                  # Django web application
+├── get_picture_service/       # Flask microservice for event images
+├── get_songs_service/         # Flask + MongoDB microservice for song lyrics
+├── main_django_app/           # Django web application
 └── README.md
 ```
 
@@ -150,15 +148,76 @@ Each microservice exposes a `/health` endpoint to monitor its status.
 
 ---
 
-## 📦 Setup Instructions
+## 🚀 Deployment Instructions
 
-> Setup and deployment instructions will be updated here as development progresses.
+### 📱 Pictures Microservice - IBM Code Engine
+
+Deploy the pictures microservice to IBM Code Engine using the source-to-image method:
+
+| Step | Command                   | Description                                                                                                                        |
+| ---- | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| 1    | Start Code Engine project | Initialize your Code Engine environment                                                                                            |
+| 2    | Configure namespace       | Set up the container registry namespace                                                                                            |
+| 3    | Build image               | `docker build -t us.icr.io/${SN_ICR_NAMESPACE}/pictures:1 .`                                                                       |
+| 4    | Push to registry          | `docker push us.icr.io/$SN_ICR_NAMESPACE/pictures:1`                                                                               |
+| 5    | Deploy application        | `ibmcloud ce app create --name pictures --image us.icr.io/${SN_ICR_NAMESPACE}/pictures:1 --registry-secret icr-secret --port 3000` |
+
+### 🎵 Songs Microservice - RedHat OpenShift
+
+Deploy the songs microservice to RedHat OpenShift with MongoDB:
+
+**1. Install MongoDB on OpenShift:**
+
+```yaml
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: mongo
+spec:
+  lookupPolicy:
+    local: false
+  tags:
+    - name: latest
+      from:
+        kind: DockerImage
+        name: docker.io/library/mongo:latest
+```
+
+**2. Deploy the Songs Service:**
+
+```bash
+# Get project details
+oc get project
+
+# Deploy application with source-to-image
+oc new-app https://github.com/${GITHUB_ACCOUNT}/Back-End-Development-Songs \
+  --strategy=source \
+  --name=songs \
+  --env MONGODB_SERVICE=mongo.{OPENSHIFT_PROJECT}.svc.cluster.local
+
+# Monitor build logs
+oc logs -f buildconfig/songs
+
+# Expose to internet
+oc expose service/songs
+oc get route songs
+```
+
+### 🌐 Django Application - IBM Kubernetes Service
+
+Deploy the Django application on IBM Kubernetes Service (IKS):
+
+1. Create a Dockerfile for the Django application
+2. Build and push the image to IBM Container Registry (ICR)
+3. Generate YAML files for Kubernetes deployment
+4. Apply configurations to the IBM Kubernetes Cluster
 
 ---
 
 ## 🌐 Live Demo
 
-> [Coming Soon – to be updated after deployment]
+- **Pictures Service**: https://pictures.1wgl1isji4om.us-south.codeengine.appdomain.cloud
+- **Songs Service**: http://songs-sn-labs-tanimbsmrstu.labs-prod-openshift-san-a45631dc5778dc6371c67d206ba9ae5c-0000.us-east.containers.appdomain.cloud
 
 ---
 
@@ -167,3 +226,9 @@ Each microservice exposes a `/health` endpoint to monitor its status.
 Contributions are welcome. Please fork the repository and open a pull request.
 
 ---
+
+every application has setup.sh to install and configure the environment , make sure its included
+
+update readme , update the main application deploy process
+add screenshots
+get the url of main application
