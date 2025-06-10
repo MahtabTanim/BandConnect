@@ -1,6 +1,39 @@
 # 🎸 BandConnect
 
-## **BandConnect** is a full-stack capstone project that brings fans closer to their favorite music band. The platform allows users to view concert pictures, read song lyrics, check upcoming events, register for concerts, and manage their reservations — all in one seamless experience.
+**BandConnect** is a full-stack capstone project that brings fans closer to their favorite music band. The platform allows users to view concert pictures, read song lyrics, check upcoming events, register for concerts, and manage their reservations — all in one seamless experience.
+
+## 📋 Table of Contents
+
+- [🎸 BandConnect](#-bandconnect)
+- [📋 Table of Contents](#-table-of-contents)
+- [🧱 System Architecture](#-system-architecture)
+- [🚀 Features](#-features)
+  - [🧑‍🎤 Anonymous Users](#-anonymous-users)
+  - [🔐 Registered Users](#-registered-users)
+  - [⚙️ Admin Users](#️-admin-users)
+- [🛠️ Technologies Used](#️-technologies-used)
+  - [🔹 Microservices](#-microservices)
+  - [🔹 Database](#-database)
+  - [🔹 Main Application](#-main-application)
+  - [🔹 Deployment](#-deployment)
+- [📸 Screenshots](#-screenshots)
+  - [🏠 Home Page](#-home-page)
+  - [🎵 Songs Gallery](#-songs-gallery)
+  - [📷 Photo Gallery](#-photo-gallery)
+  - [🎫 Concert Registration](#-concert-registration)
+  - [👤 User Authentication](#-user-authentication)
+  - [⚙️ Admin Panel](#️-admin-panel)
+- [🧭 Project Structure](#-project-structure)
+- [🧪 Health Checks](#-health-checks)
+- [🚀 Deployment Instructions](#-deployment-instructions)
+  - [📱 Pictures Microservice - IBM Code Engine](#-pictures-microservice---ibm-code-engine)
+  - [🎵 Songs Microservice - RedHat OpenShift](#-songs-microservice---redhat-openshift)
+  - [🌐 Django Application - IBM Kubernetes Service](#-django-application---ibm-kubernetes-service)
+- [🌐 Live Demo](#-live-demo)
+- [🔐 Default Admin Credentials](#-default-admin-credentials)
+- [🙏 Acknowledgments](#-acknowledgments)
+
+---
 
 ## 🧱 System Architecture
 
@@ -128,37 +161,37 @@ This diagram shows the interaction between the user, Django main site, Flask mic
 
 ### 🏠 Home Page
 
-<img src="images/homepage.png" alt="Home Page" width="600" >
+<img src="images/homepage1.png" alt="Home Page" width="600">
 
 _Welcome page with band introduction and navigation to main features_
 
 ### 🎵 Songs Gallery
 
-<img src="images/songs1.png" alt="Songs Page" width="600" >
+<img src="images/songs1.png" alt="Songs Page" width="600">
 
 _Browse song lyrics from the Flask microservice on OpenShift_
 
 ### 📷 Photo Gallery
 
-<img src="images/photos1.png" alt="Photos Page" width="600" >
+<img src="images/photos1.png" alt="Photos Page" width="600">
 
 _Concert pictures from the Flask microservice on Code Engine_
 
 ### 🎫 Concert Registration
 
-<img src="images/concert1.png" alt="Concert Registration" width="600" >
+<img src="images/concert1.png" alt="Concert Registration" width="600">
 
 _User registration for upcoming concerts_
 
 ### 👤 User Authentication
 
-<img src="images/login1.png" alt="Login Page" width="600" >
+<img src="images/login1.png" alt="Login Page" width="600">
 
 _User login and signup functionality_
 
 ### ⚙️ Admin Panel
 
-<img src="images/admin1.png" alt="Admin Panel" width="600" >
+<img src="images/admin1.png" alt="Admin Panel" width="600">
 
 _Django admin interface for concert management_
 
@@ -398,7 +431,7 @@ kubectl get services djangoserver
 - **Pictures Service**: https://pictures.1wgl1isji4om.us-south.codeengine.appdomain.cloud
 - **Songs Service**: http://songs-sn-labs-tanimbsmrstu.labs-prod-openshift-san-a45631dc5778dc6371c67d206ba9ae5c-0000.us-east.containers.appdomain.cloud
 
-### 🔐 Default Admin Credentials
+## 🔐 Default Admin Credentials
 
 - **Username**: admin
 - **Password**: admin
