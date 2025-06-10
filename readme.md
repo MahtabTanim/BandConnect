@@ -4,7 +4,7 @@
 
 ## 🧱 System Architecture
 
-![System Design](system_architecture.png)
+![System Design](images/system_architecture.png)
 
 This diagram shows the interaction between the user, Django main site, Flask microservices, and the databases:
 
@@ -126,7 +126,41 @@ This diagram shows the interaction between the user, Django main site, Flask mic
 
 ## 📸 Screenshots
 
-> Screenshots demonstrating features and architecture to be added during implementation
+### 🏠 Home Page
+
+<img src="images/homepage.png" alt="Home Page" width="600" >
+
+_Welcome page with band introduction and navigation to main features_
+
+### 🎵 Songs Gallery
+
+<img src="images/songs1.png" alt="Songs Page" width="600" >
+
+_Browse song lyrics from the Flask microservice on OpenShift_
+
+### 📷 Photo Gallery
+
+<img src="images/photos1.png" alt="Photos Page" width="600" >
+
+_Concert pictures from the Flask microservice on Code Engine_
+
+### 🎫 Concert Registration
+
+<img src="images/concert1.png" alt="Concert Registration" width="600" >
+
+_User registration for upcoming concerts_
+
+### 👤 User Authentication
+
+<img src="images/login1.png" alt="Login Page" width="600" >
+
+_User login and signup functionality_
+
+### ⚙️ Admin Panel
+
+<img src="images/admin1.png" alt="Admin Panel" width="600" >
+
+_Django admin interface for concert management_
 
 ---
 
@@ -135,8 +169,25 @@ This diagram shows the interaction between the user, Django main site, Flask mic
 ```
 bandconnect/
 ├── get_picture_service/       # Flask microservice for event images
+│   ├── app.py                # Main Flask application
+│   ├── Dockerfile            # Container configuration
+│   ├── requirements.txt      # Python dependencies
+│   └── bin/setup.sh         # Environment setup script
 ├── get_songs_service/         # Flask + MongoDB microservice for song lyrics
+│   ├── app.py                # Main Flask application
+│   ├── Dockerfile            # Container configuration
+│   ├── requirements.txt      # Python dependencies
+│   └── bin/setup.sh         # Environment setup script
 ├── main_django_app/           # Django web application
+│   ├── bandconnect/          # Django project settings
+│   ├── concert/              # Main Django app
+│   ├── templates/            # HTML templates
+│   ├── static/               # CSS, JS, images
+│   ├── Dockerfile            # Container configuration
+│   ├── requirements.txt      # Python dependencies
+│   ├── deployment.yml        # Kubernetes deployment config
+│   └── bin/setup.sh         # Environment setup script
+├── screenshots/               # Application screenshots
 └── README.md
 ```
 
@@ -162,6 +213,18 @@ Deploy the pictures microservice to IBM Code Engine using the source-to-image me
 | 4    | Push to registry          | `docker push us.icr.io/$SN_ICR_NAMESPACE/pictures:1`                                                                               |
 | 5    | Deploy application        | `ibmcloud ce app create --name pictures --image us.icr.io/${SN_ICR_NAMESPACE}/pictures:1 --registry-secret icr-secret --port 3000` |
 
+**Setup Script Usage:**
+
+```bash
+# Navigate to pictures service directory
+cd get_picture_service/
+
+# Run setup script to configure environment
+./bin/setup.sh
+
+# Follow the deployment steps above
+```
+
 ### 🎵 Songs Microservice - RedHat OpenShift
 
 Deploy the songs microservice to RedHat OpenShift with MongoDB:
@@ -186,6 +249,12 @@ spec:
 **2. Deploy the Songs Service:**
 
 ```bash
+# Navigate to songs service directory
+cd get_songs_service/
+
+# Run setup script to configure environment
+./bin/setup.sh
+
 # Get project details
 oc get project
 
@@ -207,28 +276,138 @@ oc get route songs
 
 Deploy the Django application on IBM Kubernetes Service (IKS):
 
-1. Create a Dockerfile for the Django application
-2. Build and push the image to IBM Container Registry (ICR)
-3. Generate YAML files for Kubernetes deployment
-4. Apply configurations to the IBM Kubernetes Cluster
+#### **Prerequisites**
+
+- IBM Cloud CLI installed and configured
+- Docker installed
+- kubectl configured for your IKS cluster
+- Access to IBM Container Registry (ICR)
+
+#### **Step-by-Step Deployment**
+
+**1. Environment Setup**
+
+```bash
+# Navigate to Django app directory
+cd main_django_app/
+
+# Set up the environment using the setup script
+./bin/setup.sh
+```
+
+**2. Database Migrations**
+
+```bash
+# Create and apply database migrations
+python3 manage.py makemigrations
+python3 manage.py migrate
+
+# Create superuser (optional)
+python3 manage.py createsuperuser
+```
+
+**3. Configure Microservice URLs**
+Update the microservice URLs in your Django views to point to the deployed services:
+
+- Pictures Service: `https://pictures.1wgl1isji4om.us-south.codeengine.appdomain.cloud`
+- Songs Service: `http://songs-sn-labs-tanimbsmrstu.labs-prod-openshift-san-a45631dc5778dc6371c67d206ba9ae5c-0000.us-east.containers.appdomain.cloud`
+
+**4. Build Docker Image**
+
+```bash
+# Build the Docker image
+docker build -t us.icr.io/${SN_ICR_NAMESPACE}/djangoserver:1 .
+
+# Push to IBM Container Registry
+docker push us.icr.io/${SN_ICR_NAMESPACE}/djangoserver:1
+```
+
+**5. Configure Kubernetes Deployment**
+Ensure your `deployment.yml` file is properly configured
+
+**6. Deploy to Kubernetes**
+
+```bash
+# Apply the deployment configuration
+kubectl apply -f ./deployment.yml
+
+# Verify deployment status
+kubectl get deployments
+kubectl get pods
+kubectl get services
+```
+
+**7. Access the Application**
+
+```bash
+# Get the pod name
+kubectl get pods
+
+# Port forward to access the application locally
+kubectl port-forward pod/{pod_name} 8000:8000
+
+# Application will be available at: http://localhost:8000
+```
+
+**8. Expose Service (Optional)**
+To make the service accessible from outside the cluster:
+
+```bash
+# Create a LoadBalancer service
+kubectl expose deployment djangoserver --type=LoadBalancer --port=8000
+
+# Get external IP
+kubectl get services djangoserver
+```
+
+#### **Verification Steps**
+
+1. **Health Check**: Verify the application is running
+
+   ```bash
+   curl http://localhost:8000/
+   ```
+
+2. **Service Integration**: Test microservice connectivity
+
+   ```bash
+   curl http://localhost:8000/songs/
+   curl http://localhost:8000/photos/
+   ```
+
+3. **Admin Panel**: Access Django admin
+   ```bash
+   # Navigate to: http://localhost:8000/admin/
+   # Use your created superuser credentials
+   ```
+
+#### **Troubleshooting**
+
+| Issue                     | Solution                                           |
+| ------------------------- | -------------------------------------------------- |
+| Pod not starting          | Check logs: `kubectl logs deployment/djangoserver` |
+| Image pull errors         | Verify ICR credentials and image path              |
+| Database errors           | Ensure migrations are applied in the container     |
+| Microservice connectivity | Verify service URLs and network policies           |
 
 ---
 
 ## 🌐 Live Demo
 
+- **Main Django Application**: http://localhost:8000 (via port-forward)
 - **Pictures Service**: https://pictures.1wgl1isji4om.us-south.codeengine.appdomain.cloud
 - **Songs Service**: http://songs-sn-labs-tanimbsmrstu.labs-prod-openshift-san-a45631dc5778dc6371c67d206ba9ae5c-0000.us-east.containers.appdomain.cloud
 
+### 🔐 Default Admin Credentials
+
+- **Username**: admin
+- **Password**: admin
+
 ---
 
-## 🤝 Contributing
+## 🙏 Acknowledgments
 
-Contributions are welcome. Please fork the repository and open a pull request.
-
----
-
-every application has setup.sh to install and configure the environment , make sure its included
-
-update readme , update the main application deploy process
-add screenshots
-get the url of main application
+- IBM Cloud for providing the deployment infrastructure
+- RedHat OpenShift for container orchestration
+- Django and Flask communities for excellent documentation
+- Bootstrap for responsive UI components
